@@ -34,6 +34,7 @@ public class CreateRoles implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info(">>> Checking for existing roles...");
+        userRepository.deleteAll();
         log.info("check user count: {}", userRepository.count());
         if (userRepository.count() == 0) {
             Role adminRole = roleRepository.findFirstByName("admin");
