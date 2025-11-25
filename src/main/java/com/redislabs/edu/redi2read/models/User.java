@@ -1,5 +1,6 @@
 package com.redislabs.edu.redi2read.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
@@ -7,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
@@ -48,9 +48,18 @@ public class User {
     private String passwordConfirm;
 
     @Reference
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<Role> roles = new HashSet<Role>();
 
     public void addRole(Role role) {
         this.roles.add(role);
+    }
+
+    @Reference
+    @JsonIdentityReference(alwaysAsId = true)
+    private Set<Book> books = new HashSet<>();
+
+    public void addBook(Book book) {
+        books.add(book);
     }
 }
