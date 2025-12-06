@@ -18,7 +18,7 @@ public class RedisConfig {
     @Value("${redis.timeout}")
     private int timeout;
 
-    @Value("$redis.jedis.max-total")
+    @Value("${redis.jedis.max-total}")
     private int maxTotal;
 
     @Value("${redis.jedis.max-idle}")

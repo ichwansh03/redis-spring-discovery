@@ -1,32 +1,34 @@
 package com.ichwan.shopper.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ichwan.shopper.dto.ProductDto;
 import com.ichwan.shopper.entity.Product;
 import com.ichwan.shopper.repository.ProductRepository;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-
-import java.io.IOException;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final JedisPool jedisPool;
     private final ObjectMapper objectMapper;
-    @Value("${cache.product.ttl-seconds}")
     private final int cacheTtlSeconds;
 
+
     public static final String KEY_PREFIX = "product:";
+
+    public ProductService(ProductRepository productRepository, JedisPool jedisPool, ObjectMapper objectMapper, @Value("${cache.product.ttl-seconds}") int cacheTtlSeconds) {
+        this.productRepository = productRepository;
+        this.jedisPool = jedisPool;
+        this.objectMapper = objectMapper;
+        this.cacheTtlSeconds = cacheTtlSeconds;
+    }
 
     private String key(Long id) {
         return KEY_PREFIX + id;
@@ -41,8 +43,6 @@ public class ProductService {
                 return objectMapper.readValue(cached, ProductDto.class);
             }
 
-        } catch (IOException e) {
-            log.info("Failed to read product from cache", e);
         }
 
         Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
@@ -51,8 +51,6 @@ public class ProductService {
         try (Jedis jedis = jedisPool.getResource()) {
             String value = objectMapper.writeValueAsString(dto);
             jedis.setex(key, cacheTtlSeconds, value);
-        }  catch (IOException e) {
-            log.info("Failed to write product to cache", e);
         }
 
         return dto;
