@@ -3,7 +3,7 @@ package com.ichwan.shopper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//https://chatgpt.com/s/t_692e2370a764819190f2a212c47ab95d
+//https://chatgpt.com/s/t_6934067472888191b7856d72c241f193
 @SpringBootApplication
 public class ShopperApplication {
 
