@@ -18,6 +18,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductCachePublisher cachePublisher;
 
     @Cacheable(value = "products", key = "#id")
     public Product get(Long id) {
@@ -33,7 +34,9 @@ public class ProductService {
         product.setStock(dto.getStock());
         product.setPrice(dto.getPrice());
 
-        return productRepository.save(product);
+        Product saved = productRepository.save(product);
+        cachePublisher.publish("CREATE", saved.getId());
+        return saved;
     }
 
     @CachePut(value = "products", key = "#id")
@@ -46,12 +49,15 @@ public class ProductService {
         product.setPrice(newData.getPrice());
         product.setStock(newData.getStock());
 
-        return productRepository.save(product);
+        Product updated = productRepository.save(product);
+        cachePublisher.publish("UPDATE", id);
+        return updated;
     }
 
     @CacheEvict(value = "products", key = "#id")
     public void delete(Long id) {
         productRepository.deleteById(id);
+        cachePublisher.publish("DELETE",id);
     }
 
     public List<Product> list() {
