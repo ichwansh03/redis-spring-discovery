@@ -1,5 +1,6 @@
 package com.ichwan.shopper.service;
 
+import com.ichwan.shopper.config.ProductEventType;
 import com.ichwan.shopper.dto.ProductDto;
 import com.ichwan.shopper.entity.Product;
 import com.ichwan.shopper.repository.ProductRepository;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final NotificationPublisher notificationPublisher;
     private final ProductCachePublisher cachePublisher;
 
     @Cacheable(value = "products", key = "#id")
@@ -35,7 +37,8 @@ public class ProductService {
         product.setPrice(dto.getPrice());
 
         Product saved = productRepository.save(product);
-        cachePublisher.publish("CREATE", saved.getId());
+        cachePublisher.publish(ProductEventType.CREATE.name(), saved.getId());
+        notificationPublisher.publishEmailNotif(ProductEventType.CREATE, saved.getId(), "ichwansholihin70@gmail.com", "product "+saved.getName()+" has been created");
         return saved;
     }
 
@@ -51,6 +54,7 @@ public class ProductService {
 
         Product updated = productRepository.save(product);
         cachePublisher.publish("UPDATE", id);
+        notificationPublisher.publishEmailNotif(ProductEventType.UPDATE, id, "ichwansholihin70@gmail.com", "product "+updated.getName()+" has been updated");
         return updated;
     }
 
@@ -58,6 +62,7 @@ public class ProductService {
     public void delete(Long id) {
         productRepository.deleteById(id);
         cachePublisher.publish("DELETE",id);
+        notificationPublisher.publishEmailNotif(ProductEventType.DELETE, id, "ichwansholihin70@gmail.com", "product has been deleted");
     }
 
     public List<Product> list() {

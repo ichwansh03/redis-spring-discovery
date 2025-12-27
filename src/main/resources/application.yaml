@@ -12,6 +12,17 @@ spring:
     show-sql: true
   cache:
     type: simple
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ichwansholihin70@gmail.com
+    password: app_password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 #redis:
 #  host: localhost

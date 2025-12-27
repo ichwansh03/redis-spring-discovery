@@ -10,11 +10,11 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 public class RedisSubscriberConfig {
 
     @Bean
-    RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory, ProductCacheSubscriber subscriber) {
+    RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory, ProductCacheSubscriber subscriber, EmailNotifSubscriber notifSubscriber) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
         container.addMessageListener(subscriber, new ChannelTopic("product.cache.event"));
-
+        container.addMessageListener(notifSubscriber, new ChannelTopic("notif.email"));
         return container;
     }
 }
