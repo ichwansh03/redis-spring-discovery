@@ -3,35 +3,28 @@ package com.ichwan.shopper.config;
 import com.ichwan.shopper.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
-import org.springframework.data.redis.connection.Message;
-import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class EmailNotifSubscriber implements MessageListener {
+public class EmailNotifSubscriber implements StreamListener<String, MapRecord<String, String, String>> {
 
-    private final ObjectMapper objectMapper;
     private final EmailService emailService;
 
     @Override
-    public void onMessage(Message message, byte @Nullable [] pattern) {
+    public void onMessage(MapRecord<String, String, String> record) {
         try {
-            String json = new String(message.getBody(), StandardCharsets.UTF_8);
+            Map<String, String> payload = record.getValue();
 
-            Map<String, Object> payload = objectMapper.readValue(json, new TypeReference<>(){});
-
-            String action = (String) payload.get("action");
-            Long productId = payload.get("productId") != null ? Long.valueOf(payload.get("productId").toString()) : null;
-            String email = (String) payload.get("email");
-            String content = (String) payload.get("message");
+            String action = payload.get("action");
+            Long productId = payload.get("productId") != null ? Long.valueOf(payload.get("productId")) : null;
+            String email = payload.get("email");
+            String content = payload.get("message");
 
             if (email == null || content == null) {
                 log.warn("invalid email payload {}",payload);
