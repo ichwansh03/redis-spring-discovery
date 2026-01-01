@@ -10,6 +10,7 @@ import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
 import java.time.Duration;
+
 @Configuration
 public class RedisStreamConfig {
 

@@ -4,8 +4,8 @@ import com.ichwan.shopper.config.ProductEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -13,18 +13,17 @@ import java.util.Map;
 public class NotificationPublisher {
 
     private final StringRedisTemplate redisTemplate;
-    private final ObjectMapper objectMapper;
 
     public void publishEmailNotif(ProductEventType action, Long productId, String email, String message) {
         try {
-            Map<String, Object> payload = Map.of(
-                    "action", action.name(),
-                    "productId", productId,
-                    "email", email,
-                    "message", message
-            );
+            Map<String, String> fields = new HashMap<>();
+            fields.put("action", action.name());
+            fields.put("productId", productId != null ? productId.toString() : null);
+            fields.put("email", email);
+            fields.put("message", message);
 
-            redisTemplate.convertAndSend("notif.email", objectMapper.writeValueAsString(payload));
+            redisTemplate.opsForStream().add("notif.email.stream", fields);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

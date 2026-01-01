@@ -4,6 +4,7 @@ import com.ichwan.shopper.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 public class EmailNotifSubscriber implements StreamListener<String, MapRecord<String, String, String>> {
 
     private final EmailService emailService;
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     public void onMessage(MapRecord<String, String, String> record) {
@@ -28,18 +30,23 @@ public class EmailNotifSubscriber implements StreamListener<String, MapRecord<St
 
             if (email == null || content == null) {
                 log.warn("invalid email payload {}",payload);
+                ack(record);
                 return;
             }
 
             String subject = mapSubject(action, productId);
 
             emailService.send(email, subject, content);
-
+            ack(record);
             log.info("email notif sent. subject={}",subject);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void ack(MapRecord<String, String, String> record) {
+        redisTemplate.opsForStream().acknowledge("notif.email.stream","email-group", record.getId());
     }
 
     private String mapSubject(String action, Long productId) {
