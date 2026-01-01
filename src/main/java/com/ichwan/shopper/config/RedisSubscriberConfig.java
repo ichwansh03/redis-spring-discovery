@@ -14,7 +14,6 @@ public class RedisSubscriberConfig {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
         container.addMessageListener(subscriber, new ChannelTopic("product.cache.event"));
-        container.addMessageListener(notifSubscriber, new ChannelTopic("notif.email"));
         return container;
     }
 }
