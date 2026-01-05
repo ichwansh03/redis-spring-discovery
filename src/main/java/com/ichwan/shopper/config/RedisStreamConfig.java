@@ -1,5 +1,6 @@
 package com.ichwan.shopper.config;
 
+import jakarta.annotation.PreDestroy;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -14,13 +15,16 @@ import java.time.Duration;
 @Configuration
 public class RedisStreamConfig {
 
+    private StreamMessageListenerContainer<String, MapRecord<String, String, String>> container;
+
     @Bean
     public StreamMessageListenerContainer<String, MapRecord<String, String, String>> emailStreamContainer(RedisConnectionFactory factory, EmailNotifSubscriber subscriber) {
         StreamMessageListenerContainer.StreamMessageListenerContainerOptions<String, MapRecord<String, String, String>> options = StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
                 .pollTimeout(Duration.ofSeconds(2))
+                .batchSize(10)
                 .build();
 
-        StreamMessageListenerContainer<String, MapRecord<String, String, String>> container = StreamMessageListenerContainer.create(factory, options);
+        this.container = StreamMessageListenerContainer.create(factory, options);
 
         container.receive(
                 Consumer.from("email-group","email-consumer-1"),
@@ -30,5 +34,10 @@ public class RedisStreamConfig {
 
         container.start();
         return container;
+    }
+
+    @PreDestroy
+    public void stop(){
+        if (container != null) container.stop();
     }
 }

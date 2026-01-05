@@ -41,7 +41,7 @@ public class EmailNotifSubscriber implements StreamListener<String, MapRecord<St
             log.info("email notif sent. subject={}",subject);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("failed to process email notif: {}",e.getMessage());
         }
     }
 
