@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Map;
 
 @Slf4j
@@ -20,6 +21,9 @@ public class EmailNotifSubscriber implements StreamListener<String, MapRecord<St
 
     @Override
     public void onMessage(MapRecord<String, String, String> record) {
+
+        String retryKey = "email:retry"+record.getId();
+
         try {
             Map<String, String> payload = record.getValue();
 
@@ -41,6 +45,15 @@ public class EmailNotifSubscriber implements StreamListener<String, MapRecord<St
             log.info("email notif sent. subject={}",subject);
 
         } catch (Exception e) {
+            Long retry = redisTemplate.opsForValue().increment(retryKey);
+            redisTemplate.expire(retryKey, Duration.ofHours(1));
+
+            if (retry > 3) {
+                redisTemplate.opsForStream().add("notif.email.dlq",record.getValue());
+                redisTemplate.delete(retryKey);
+                ack(record);
+            }
+
             log.error("failed to process email notif: {}",e.getMessage());
         }
     }
