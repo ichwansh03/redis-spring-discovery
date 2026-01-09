@@ -52,6 +52,14 @@ public class EmailNotifSubscriber implements StreamListener<String, MapRecord<St
                 redisTemplate.opsForStream().add("notif.email.dlq",record.getValue());
                 redisTemplate.delete(retryKey);
                 ack(record);
+                return;
+            }
+
+            try {
+                long backoff = Math.min(1000L * retry, 10_000L);
+                Thread.sleep(backoff);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
             }
 
             log.error("failed to process email notif: {}",e.getMessage());
