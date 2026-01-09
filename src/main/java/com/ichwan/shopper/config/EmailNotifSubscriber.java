@@ -41,6 +41,7 @@ public class EmailNotifSubscriber implements StreamListener<String, MapRecord<St
             String subject = mapSubject(action, productId);
 
             emailService.send(email, subject, content);
+            //emailService.sendFailure(email, subject, content);
             ack(record);
             log.info("email notif sent. subject={}",subject);
 

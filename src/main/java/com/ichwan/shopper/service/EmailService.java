@@ -28,4 +28,8 @@ public class EmailService {
             throw new RuntimeException(e);
         }
     }
+
+    public void sendFailure(String email, String subject, String content) {
+        throw new RuntimeException("Simulated failure");
+    }
 }
