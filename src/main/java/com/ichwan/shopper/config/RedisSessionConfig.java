@@ -2,7 +2,7 @@ package com.ichwan.shopper.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
@@ -12,9 +12,6 @@ public class RedisSessionConfig {
 
     @Bean
     public RedisSerializer<Object> sessionRedisSerializer() {
-        return GenericJacksonJsonRedisSerializer.builder()
-                .typePropertyName("@class")
-                .enableUnsafeDefaultTyping()
-                .build();
+        return new JdkSerializationRedisSerializer();
     }
 }
