@@ -675,11 +675,19 @@ spring:
 
 ### 4. **Enable Redis Persistence**
 ```bash
-# redis.conf
-save 900 1      # Save after 900s if 1 key changed
-save 300 10     # Save after 300s if 10 keys changed
-appendonly yes  # Enable AOF for durability
+# redis.conf# Aktifkan RDB snapshot
+save 900 1
+save 300 10
+save 60 10000
+
+# Lokasi file snapshot
+dir /var/lib/redis
+dbfilename dump.rdb
+
+# Pastikan Redis tetap jalan walau gagal snapshot
+stop-writes-on-bgsave-error no
 ```
+Jalankan container docker dan wajib implementasi volume
 
 ### 5. **Use Connection Pooling**
 ```yaml
