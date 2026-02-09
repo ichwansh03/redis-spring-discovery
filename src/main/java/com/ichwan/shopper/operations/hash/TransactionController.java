@@ -1,4 +1,4 @@
-package com.ichwan.shopper.operations.zsets;
+package com.ichwan.shopper.operations.hash;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

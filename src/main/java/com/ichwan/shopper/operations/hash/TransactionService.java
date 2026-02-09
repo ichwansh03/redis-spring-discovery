@@ -1,4 +1,4 @@
-package com.ichwan.shopper.operations.zsets;
+package com.ichwan.shopper.operations.hash;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,6 +29,5 @@ public class TransactionService {
     public Map<Object, Object> getTrxState() {
         return redisTemplate.opsForHash().entries(KEY);
     }
-
 
 }
