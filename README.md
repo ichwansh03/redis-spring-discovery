@@ -797,27 +797,27 @@ Solution:
 
 ```curl
 # Login
-curl -X POST "http://localhost:8080/api/session/login?username=john&email=john@example.com" \
+curl -X POST "http://localhost:8080/user/session/login?username=john&email=john@example.com" \
   -c cookies.txt
 
 # Get Current Session
-curl -X GET "http://localhost:8080/api/session/current" \
+curl -X GET "http://localhost:8080/user/session/current" \
   -b cookies.txt
 
 # Update Session
-curl -X PUT "http://localhost:8080/api/session/update?email=newemail@example.com" \
+curl -X PUT "http://localhost:8080/user/session/update?email=newemail@example.com" \
   -b cookies.txt
 
 # Add Custom Attribute
-curl -X POST "http://localhost:8080/api/session/attribute?key=theme&value=dark" \
+curl -X POST "http://localhost:8080/user/session/attribute?key=theme&value=dark" \
   -b cookies.txt
 
 # Get All Attributes
-curl -X GET "http://localhost:8080/api/session/attributes" \
+curl -X GET "http://localhost:8080/user/session/attributes" \
   -b cookies.txt
 
 # Logout
-curl -X POST "http://localhost:8080/api/session/logout" \
+curl -X POST "http://localhost:8080/user/session/logout" \
   -b cookies.txt
 ```
 
