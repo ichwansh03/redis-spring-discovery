@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TransactionService {
+public class TransactionsService {
 
     private final StringRedisTemplate redisTemplate;
 
