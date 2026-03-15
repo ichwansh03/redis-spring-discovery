@@ -721,6 +721,16 @@ spring:
       cleanup-cron: "0 */5 * * * *"  # Cleanup every 5 minutes
 ```
 
+### 9. Membuat Docker Persistence untuk Redis
+```bash
+docker run -d --name redis-stack \
+  -p 6379:6379 \
+  -p 8001:8001 \
+  -v $(pwd)/redis/temp/data:/data \
+  -v $(pwd)/redis/temp/redis.conf:/usr/local/etc/redis/redis.conf \
+  redis
+```
+
 ---
 
 ## 📊 Monitoring
