@@ -31,6 +31,7 @@
 - [Monitoring](#-monitoring)
 - [Troubleshooting](#-troubleshooting)
 - [API Sample](#-api-sample)
+- [Kesalahan dalam Penggunaan Redis](#-kesalahan-dalam-penggunaan-redis)
 
 ---
 
@@ -830,6 +831,26 @@ curl -X GET "http://localhost:8080/user/session/attributes" \
 curl -X POST "http://localhost:8080/user/session/logout" \
   -b cookies.txt
 ```
+
+## ⛔️ Kesalahan dalam Penggunaan Redis
+---
+**1. Hindari menyimpan data berukuran besar di Redis**
+Perhatikan ukuran data yang disimpan di Redis. Jika sebuah data berukuran 5MB saat disimpan, maka saat cache tersebut dipanggil kembali, Redis akan mengembalikan data sebesar 5MB juga melalui jaringan. Hal ini dapat membebani network, terutama jika VM yang digunakan memiliki bandwidth terbatas. Semakin besar ukuran data yang di-cache, semakin besar pula beban network pada setiap operasi read.
+
+**2. Gunakan Redis hanya untuk data yang jarang berubah namun sering diakses**
+Redis paling efektif digunakan sebagai cache untuk data yang frekuensi perubahannya rendah tetapi sering dibutuhkan. Jika data terlalu sering berubah, cache akan terus-menerus diperbarui sehingga manfaat caching menjadi tidak optimal.
+
+**3. Jadikan Redis sebagai centralized caching di service layer**
+Implementasikan Redis sebagai lapisan cache terpusat di sisi backend, khususnya di service layer. Dengan pendekatan ini, setiap request dari frontend akan dilayani melalui Redis terlebih dahulu, bukan langsung mengakses database. Hal ini mengurangi beban database dan mempercepat response time secara keseluruhan.
+
+**4. Pertimbangkan trade-off sebelum mengaktifkan fitur persistence di Redis**
+Redis menyediakan dua mekanisme persistence untuk menyimpan data dari memory ke disk:
+- **RDB Snapshot** — mencadangkan data secara berkala berdasarkan interval waktu. Redis memotret seluruh kondisi data di memory pada satu titik waktu dan menyimpannya sebagai file binary bernama `dump.rdb`.
+- **AOF (Append-Only File)** — mencatat setiap operasi write secara real-time ke sebuah file log. Saat Redis restart, semua perintah di file AOF akan diputar ulang dari awal untuk membangun kembali data di memory.
+
+Namun, perlu diperhatikan bahwa mengaktifkan persistence di Redis dapat berdampak pada performa aplikasi. Proses baca/tulis ke disk bersifat blocking pada kondisi tertentu, sehingga dapat menyebabkan aplikasi mengalami delay saat menunggu proses tersebut selesai. Pastikan kebutuhan durability data benar-benar memerlukan persistence sebelum mengaktifkan fitur ini.
+
+---
 
 ## 📚 Resources
 
